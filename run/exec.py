@@ -166,3 +166,31 @@ img_kernel_df.insert(0, 'id', range(1, 1 + len(img_kernel_df)))
 path_nm = "data/" + str(w) + "_" + str(L)  + "_"  + str(N_iter)
 real_kernel_df.to_csv(path_nm + "_kernel_real.csv",index=None) 
 img_kernel_df.to_csv(path_nm + "_kernel_img.csv",index=None) 
+
+import json
+data=json.load(open("test.log"))
+iters = data['Energy']['iters']
+energy=data['Energy']['Mean']['real']
+sf=data['Structure Factor']['Mean']['real']
+
+E_gs, ket_gs = nk.exact.lanczos_ed(op, compute_eigenvectors=True)
+structure_factor_gs = (ket_gs.T.conj()@structure_factor.to_linear_operator()@ket_gs).real[0,0]
+
+exact_e = []
+exact_e.append(E_gs[0])
+exact_sf = []
+exact_sf.append(structure_factor_gs)
+
+
+calc_df = pd.DataFrame()
+calc_df['iters']  = iters
+calc_df['energy'] = energy
+calc_df['sf']     = sf
+calc_df.to_csv(path_nm + "_calc_energy.csv",index=None) 
+
+exact_df = pd.DataFrame()
+exact_df['energy']  = exact_e
+exact_df['sf']      = exact_sf
+exact_df.to_csv(path_nm + "_exact_energy.csv",index=None) 
+
+print(E_gs[0],structure_factor_gs)
